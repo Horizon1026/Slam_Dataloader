@@ -1,0 +1,5 @@
+[Bb]uild
+[Oo]utput
+.vscode
+.cache
+__pycache__
