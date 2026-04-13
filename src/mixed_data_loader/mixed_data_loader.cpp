@@ -2,7 +2,7 @@
 #include "slam_log_reporter.h"
 #include "slam_operations.h"
 
-namespace lvio {
+namespace dataloader {
 
 MixedDataLoader::~MixedDataLoader() {
     // With correct declaration order, destruction happens in the right sequence:
@@ -222,4 +222,4 @@ bool MixedDataLoader::ValidateVisualInertialMeasurePackage(const VisualInertialM
 
     return true;
 }
-}  // namespace lvio
+}  // namespace dataloader

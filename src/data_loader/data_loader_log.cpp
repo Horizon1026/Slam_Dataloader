@@ -1,8 +1,8 @@
 #include "data_loader.h"
-#include "memory"
 #include "slam_log_reporter.h"
+#include "memory"
 
-namespace vio {
+namespace dataloader {
 
 namespace {
     constexpr uint32_t kDataLoaderLogIndex = 0;
@@ -103,4 +103,4 @@ void DataLoader::RecordPackedMeasurementLog(const PackedMeasurement &measure) {
     }
 }
 
-}  // namespace vio
+}  // namespace dataloader

@@ -10,7 +10,7 @@
 #include "mutex"
 #include "object_pool.h"
 
-namespace lvio {
+namespace dataloader {
 
 using namespace slam_utility;
 using namespace sensor_model;
@@ -75,6 +75,6 @@ private:
     std::unique_ptr<std::mutex> lidar_mutex_;
 };
 
-}  // namespace lvio
+}  // namespace dataloader
 
 #endif  // end of _MIXED_DATA_LOADER_H_

@@ -16,7 +16,7 @@
 #include "deque"
 #include "mutex"
 
-namespace vio {
+namespace dataloader {
 
 using namespace slam_utility;
 using namespace sensor_model;
@@ -112,6 +112,6 @@ private:
     ImuRawDataLog imu_raw_package_data_;
 };
 
-}  // namespace vio
+}  // namespace dataloader
 
 #endif  // end of _VIO_STEREO_VINS_DATA_LOADER_H_

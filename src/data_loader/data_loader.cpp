@@ -2,7 +2,7 @@
 #include "memory"
 #include "slam_log_reporter.h"
 
-namespace vio {
+namespace dataloader {
 
 void DataLoader::Clear() {
     imu_buffer_.clear();
@@ -247,4 +247,4 @@ bool DataLoader::PopPackedMeasurement(PackedMeasurement &measure) {
     return true;
 }
 
-}  // namespace vio
+}  // namespace dataloader
