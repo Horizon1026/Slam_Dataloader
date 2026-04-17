@@ -47,7 +47,7 @@ void DataLoader::RegisterLogPackages() {
         std::unique_ptr<PackageInfo> imu_package_ptr = std::make_unique<PackageInfo>();
         imu_package_ptr->id = kImuRawDataLogIndex;
         imu_package_ptr->name = "imu_raw_data";
-        imu_package_ptr->items.emplace_back(PackageItemInfo {.type = ItemType::kFloat, .name = "time_stamp_s"});
+        imu_package_ptr->items.emplace_back(PackageItemInfo {.type = ItemType::kDouble, .name = "time_stamp_s"});
         imu_package_ptr->items.emplace_back(PackageItemInfo {.type = ItemType::kVector3, .name = "accel(ms2)"});
         imu_package_ptr->items.emplace_back(PackageItemInfo {.type = ItemType::kVector3, .name = "gyro(rads)"});
         if (!logger_.RegisterPackage(imu_package_ptr)) {

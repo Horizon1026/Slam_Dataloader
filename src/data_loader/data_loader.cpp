@@ -11,7 +11,7 @@ void DataLoader::Clear() {
 }
 
 // Push measurements into dataloader.
-bool DataLoader::PushImuMeasurement(const Vec3 &accel, const Vec3 &gyro, const float &time_stamp_s) {
+bool DataLoader::PushImuMeasurement(const Vec3 &accel, const Vec3 &gyro, const double &time_stamp_s) {
     if (!imu_buffer_.empty() && imu_buffer_.back()->time_stamp_s > time_stamp_s) {
         ReportWarn("[DataLoader] Imu measurement pushed has invalid timestamp. Latest in buffer is " << imu_buffer_.back()->time_stamp_s << " s, but pushed is "
                                                                                                      << time_stamp_s << " s.");
@@ -29,7 +29,7 @@ bool DataLoader::PushImuMeasurement(const Vec3 &accel, const Vec3 &gyro, const f
     return true;
 }
 
-bool DataLoader::PushImageMeasurement(GrayImage &&image, const float &time_stamp_s, const bool is_left_image) {
+bool DataLoader::PushImageMeasurement(GrayImage &&image, const double &time_stamp_s, const bool is_left_image) {
     const auto image_buffer_ptr = is_left_image ? &left_image_buffer_ : &right_image_buffer_;
     auto &image_mutex = is_left_image ? left_image_mutex_ : right_image_mutex_;
 
@@ -78,8 +78,8 @@ bool DataLoader::PopSingleMeasurement(SingleMeasurement &measure) {
             left_image_buffer_.pop_front();
         } else {
             // Pop both left and right image, only if their timestamp is nearby.
-            const float oldest_left_timestamp_s = left_image_buffer_.front()->time_stamp_s;
-            const float oldest_right_timestamp_s = right_image_buffer_.front()->time_stamp_s;
+            const double oldest_left_timestamp_s = left_image_buffer_.front()->time_stamp_s;
+            const double oldest_right_timestamp_s = right_image_buffer_.front()->time_stamp_s;
             if (std::fabs(oldest_left_timestamp_s - oldest_right_timestamp_s) < options_.kMaxToleranceTimeDifferenceOfStereoImageInSeconds) {
                 measure.left_image = std::move(left_image_buffer_.front());
                 measure.right_image = std::move(right_image_buffer_.front());
@@ -98,7 +98,7 @@ bool DataLoader::PopSingleMeasurement(SingleMeasurement &measure) {
         }
     } else {
         // If imu buffer is not empty, consider of all.
-        const float oldest_imu_timestamp_s = imu_buffer_.front()->time_stamp_s;
+        const double oldest_imu_timestamp_s = imu_buffer_.front()->time_stamp_s;
 
         if (left_buffer_empty && right_buffer_empty) {
             // Only imu buffer is not empty.
@@ -106,7 +106,7 @@ bool DataLoader::PopSingleMeasurement(SingleMeasurement &measure) {
             imu_buffer_.pop_front();
         } else if (left_buffer_empty) {
             // Imu buffer and right image buffer are not empty.
-            const float oldest_right_timestamp_s = right_image_buffer_.front()->time_stamp_s;
+            const double oldest_right_timestamp_s = right_image_buffer_.front()->time_stamp_s;
             if (oldest_imu_timestamp_s < oldest_right_timestamp_s) {
                 measure.imu = std::move(imu_buffer_.front());
                 imu_buffer_.pop_front();
@@ -116,7 +116,7 @@ bool DataLoader::PopSingleMeasurement(SingleMeasurement &measure) {
             }
         } else if (right_buffer_empty) {
             // Imu buffer and left image buffer are not empty.
-            const float oldest_left_timestamp_s = left_image_buffer_.front()->time_stamp_s;
+            const double oldest_left_timestamp_s = left_image_buffer_.front()->time_stamp_s;
             if (oldest_imu_timestamp_s < oldest_left_timestamp_s) {
                 measure.imu = std::move(imu_buffer_.front());
                 imu_buffer_.pop_front();
@@ -126,8 +126,8 @@ bool DataLoader::PopSingleMeasurement(SingleMeasurement &measure) {
             }
         } else {
             // Imu buffer and left/right image buffer are all not empty.
-            const float oldest_left_timestamp_s = left_image_buffer_.front()->time_stamp_s;
-            const float oldest_right_timestamp_s = right_image_buffer_.front()->time_stamp_s;
+            const double oldest_left_timestamp_s = left_image_buffer_.front()->time_stamp_s;
+            const double oldest_right_timestamp_s = right_image_buffer_.front()->time_stamp_s;
 
             if (oldest_imu_timestamp_s <= oldest_left_timestamp_s || oldest_imu_timestamp_s <= oldest_right_timestamp_s) {
                 // Imu data will be popped priorly.
@@ -198,8 +198,8 @@ bool DataLoader::PopPackedMeasurement(PackedMeasurement &measure) {
     measure.left_image = std::move(left_image_buffer_.front());
     left_image_buffer_.pop_front();
     if (!right_buffer_empty) {
-        const float oldest_left_timestamp_s = measure.left_image->time_stamp_s;
-        const float oldest_right_timestamp_s = right_image_buffer_.front()->time_stamp_s;
+        const double oldest_left_timestamp_s = measure.left_image->time_stamp_s;
+        const double oldest_right_timestamp_s = right_image_buffer_.front()->time_stamp_s;
         if (std::fabs(oldest_left_timestamp_s - oldest_right_timestamp_s) < options_.kMaxToleranceTimeDifferenceOfStereoImageInSeconds) {
             measure.right_image = std::move(right_image_buffer_.front());
             right_image_buffer_.pop_front();

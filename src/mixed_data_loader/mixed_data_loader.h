@@ -38,8 +38,8 @@ public:
     void Clear();
 
     // Push measurements into dataloader.
-    bool PushImuMeasurement(const Vec3 &accel, const Vec3 &gyro, const float &time_stamp_s);
-    bool PushImageMeasurement(GrayImage &&image, const float &time_stamp_s, const uint32_t camera_id = 0);
+    bool PushImuMeasurement(const Vec3 &accel, const Vec3 &gyro, const double &time_stamp_s);
+    bool PushImageMeasurement(GrayImage &&image, const double &time_stamp_s, const uint32_t camera_id = 0);
     bool PushLidarMeasurement(ObjectPtr<LidarMeasurement> &lidar_measure);
 
     // Pop measurements from dataloader.

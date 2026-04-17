@@ -36,7 +36,7 @@ void MixedDataLoader::Clear() {
     lidar_buffer_.Clear();
 }
 
-bool MixedDataLoader::PushImuMeasurement(const Vec3 &accel, const Vec3 &gyro, const float &time_stamp_s) {
+bool MixedDataLoader::PushImuMeasurement(const Vec3 &accel, const Vec3 &gyro, const double &time_stamp_s) {
     if (!imu_buffer_.Empty() && imu_buffer_.Back()->time_stamp_s > time_stamp_s) {
         ReportWarn("[MixedDataLoader] Imu measurement pushed has invalid timestamp. Latest in buffer is " << imu_buffer_.Back()->time_stamp_s
                                                                                                           << " s, but pushed is " << time_stamp_s << " s.");
@@ -54,7 +54,7 @@ bool MixedDataLoader::PushImuMeasurement(const Vec3 &accel, const Vec3 &gyro, co
     return true;
 }
 
-bool MixedDataLoader::PushImageMeasurement(GrayImage &&image, const float &time_stamp_s, const uint32_t camera_id) {
+bool MixedDataLoader::PushImageMeasurement(GrayImage &&image, const double &time_stamp_s, const uint32_t camera_id) {
     RETURN_FALSE_IF(camera_id >= options_.kMaxNumberOfMultiViewCameras);
     auto &image_buffer = multi_view_image_buffer_[camera_id];
     auto &image_pool = multi_view_image_pool_[camera_id];
@@ -102,7 +102,7 @@ bool MixedDataLoader::PopVisualInertialMeasurePackage(VisualInertialMeasurePacka
     }
 
     // Image data cannot be older than imu data. Discard useless image data.
-    const float oldest_imu_timestamp_s = imu_buffer_.Front()->time_stamp_s;
+    const double oldest_imu_timestamp_s = imu_buffer_.Front()->time_stamp_s;
     for (auto &buffer: multi_view_image_buffer_) {
         while (!buffer.Empty()) {
             if (buffer.Front()->time_stamp_s < oldest_imu_timestamp_s) {
@@ -125,17 +125,17 @@ bool MixedDataLoader::PopVisualInertialMeasurePackage(VisualInertialMeasurePacka
     measure.camera_measures.clear();
 
     // Check timestamp of multi-view images and imu data.
-    float min_image_timestamp_s = multi_view_image_buffer_.front().Front()->time_stamp_s;
+    double min_image_timestamp_s = multi_view_image_buffer_.front().Front()->time_stamp_s;
     for (auto &buffer: multi_view_image_buffer_) {
         min_image_timestamp_s = std::min(min_image_timestamp_s, buffer.Front()->time_stamp_s);
     }
-    const float max_tolerance_image_timestamp_s = min_image_timestamp_s + options_.kMaxToleranceTimeDifferenceBetweenMultiViewImagesInSeconds;
+    const double max_tolerance_image_timestamp_s = min_image_timestamp_s + options_.kMaxToleranceTimeDifferenceBetweenMultiViewImagesInSeconds;
     if (imu_buffer_.Back()->time_stamp_s < max_tolerance_image_timestamp_s) {
         return false;
     }
 
     // Try to pack multi-view images.
-    float max_image_timestamp_s = min_image_timestamp_s;
+    double max_image_timestamp_s = min_image_timestamp_s;
     for (auto &buffer: multi_view_image_buffer_) {
         CONTINUE_IF(buffer.Front()->time_stamp_s > max_tolerance_image_timestamp_s);
         max_image_timestamp_s = std::max(max_image_timestamp_s, buffer.Front()->time_stamp_s);

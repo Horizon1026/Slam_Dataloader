@@ -16,7 +16,7 @@ struct DataLoaderLog {
     uint32_t num_of_right_image_in_buffer = 0;
 };
 struct ImuRawDataLog {
-    float time_stamp_s = 0.0f;
+    double time_stamp_s = 0.0;
     float accel_x_ms2 = 0.0f;
     float accel_y_ms2 = 0.0f;
     float accel_z_ms2 = 0.0f;

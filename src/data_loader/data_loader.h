@@ -63,8 +63,8 @@ public:
     void RecordPackedMeasurementLog(const PackedMeasurement &measure);
 
     // Push measurements into dataloader.
-    bool PushImuMeasurement(const Vec3 &accel, const Vec3 &gyro, const float &time_stamp_s);
-    bool PushImageMeasurement(GrayImage &&image, const float &time_stamp_s, const bool is_left_image = true);
+    bool PushImuMeasurement(const Vec3 &accel, const Vec3 &gyro, const double &time_stamp_s);
+    bool PushImageMeasurement(GrayImage &&image, const double &time_stamp_s, const bool is_left_image = true);
 
     // Pop measurements from dataloader.
     bool PopSingleMeasurement(SingleMeasurement &measure);
