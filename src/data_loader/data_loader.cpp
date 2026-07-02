@@ -19,8 +19,8 @@ bool DataLoader::PushImuMeasurement(const Vec3 &accel, const Vec3 &gyro, const d
     }
 
     auto object_ptr = imu_pool_.Get();
-    object_ptr->accel = accel;
-    object_ptr->gyro = gyro;
+    object_ptr->accel_mps2 = accel;
+    object_ptr->gyro_rps = gyro;
     object_ptr->time_stamp_s = time_stamp_s;
 
     std::unique_lock<std::mutex> lck(imu_mutex_);
@@ -221,21 +221,21 @@ bool DataLoader::PopPackedMeasurement(PackedMeasurement &measure) {
         auto next = imu_buffer_.front().get();
         const float scale = (mid->time_stamp_s - prev->time_stamp_s) / (next->time_stamp_s - prev->time_stamp_s);
         mid->time_stamp_s = measure.left_image->time_stamp_s;
-        mid->gyro = prev->gyro * (1 - scale) + next->gyro * scale;
-        mid->accel = prev->accel * (1 - scale) + next->accel * scale;
+        mid->gyro_rps = prev->gyro_rps * (1 - scale) + next->gyro_rps * scale;
+        mid->accel_mps2 = prev->accel_mps2 * (1 - scale) + next->accel_mps2 * scale;
 
         auto new_item = imu_pool_.Get();
         new_item->time_stamp_s = mid->time_stamp_s;
-        new_item->gyro = mid->gyro;
-        new_item->accel = mid->accel;
+        new_item->gyro_rps = mid->gyro_rps;
+        new_item->accel_mps2 = mid->accel_mps2;
 
         measure.imus.emplace_back(std::move(mid));
         imu_buffer_.emplace_front(std::move(new_item));
     } else {
         auto new_item = imu_pool_.Get();
         new_item->time_stamp_s = measure.imus.back()->time_stamp_s;
-        new_item->gyro = measure.imus.back()->gyro;
-        new_item->accel = measure.imus.back()->accel;
+        new_item->gyro_rps = measure.imus.back()->gyro_rps;
+        new_item->accel_mps2 = measure.imus.back()->accel_mps2;
         imu_buffer_.emplace_front(std::move(new_item));
     }
 

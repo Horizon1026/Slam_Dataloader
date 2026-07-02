@@ -85,12 +85,12 @@ void DataLoader::RecordPackedMeasurementLog(const PackedMeasurement &measure) {
     // Record imu raw data log.
     for (uint32_t i = 0; i < measure.imus.size() - 1; ++i) {
         imu_raw_package_data_.time_stamp_s = measure.imus[i]->time_stamp_s;
-        imu_raw_package_data_.accel_x_ms2 = measure.imus[i]->accel.x();
-        imu_raw_package_data_.accel_y_ms2 = measure.imus[i]->accel.y();
-        imu_raw_package_data_.accel_z_ms2 = measure.imus[i]->accel.z();
-        imu_raw_package_data_.gyro_x_ms2 = measure.imus[i]->gyro.x();
-        imu_raw_package_data_.gyro_y_ms2 = measure.imus[i]->gyro.y();
-        imu_raw_package_data_.gyro_z_ms2 = measure.imus[i]->gyro.z();
+        imu_raw_package_data_.accel_x_ms2 = measure.imus[i]->accel_mps2.x();
+        imu_raw_package_data_.accel_y_ms2 = measure.imus[i]->accel_mps2.y();
+        imu_raw_package_data_.accel_z_ms2 = measure.imus[i]->accel_mps2.z();
+        imu_raw_package_data_.gyro_x_ms2 = measure.imus[i]->gyro_rps.x();
+        imu_raw_package_data_.gyro_y_ms2 = measure.imus[i]->gyro_rps.y();
+        imu_raw_package_data_.gyro_z_ms2 = measure.imus[i]->gyro_rps.z();
         logger_.RecordPackage(kImuRawDataLogIndex, reinterpret_cast<const char *>(&imu_raw_package_data_), imu_raw_package_data_.time_stamp_s);
     }
 

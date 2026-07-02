@@ -44,8 +44,8 @@ bool MixedDataLoader::PushImuMeasurement(const Vec3 &accel, const Vec3 &gyro, co
     }
 
     auto object_ptr = imu_pool_.Get();
-    object_ptr->accel = accel;
-    object_ptr->gyro = gyro;
+    object_ptr->accel_mps2 = accel;
+    object_ptr->gyro_rps = gyro;
     object_ptr->time_stamp_s = time_stamp_s;
 
     std::unique_lock<std::mutex> lck(*imu_mutex_);
@@ -155,8 +155,8 @@ bool MixedDataLoader::PopVisualInertialMeasurePackage(VisualInertialMeasurePacka
             // Copy the last imu data into the buffer. So that the imu data in next package can be completed.
             auto new_item = imu_pool_.Get();
             new_item->time_stamp_s = measure.imu_measures.back()->time_stamp_s;
-            new_item->accel = measure.imu_measures.back()->accel;
-            new_item->gyro = measure.imu_measures.back()->gyro;
+            new_item->accel_mps2 = measure.imu_measures.back()->accel_mps2;
+            new_item->gyro_rps = measure.imu_measures.back()->gyro_rps;
             imu_buffer_.MovePushFront(new_item);
         } else {
             // Linear interpolation for imu at the timestamp of the last image.
@@ -165,13 +165,13 @@ bool MixedDataLoader::PopVisualInertialMeasurePackage(VisualInertialMeasurePacka
             auto next = imu_buffer_.Front().get();
             const float scale = (mid->time_stamp_s - prev->time_stamp_s) / (next->time_stamp_s - prev->time_stamp_s);
             mid->time_stamp_s = max_image_timestamp_s;
-            mid->accel = prev->accel * (1 - scale) + next->accel * scale;
-            mid->gyro = prev->gyro * (1 - scale) + next->gyro * scale;
+            mid->accel_mps2 = prev->accel_mps2 * (1 - scale) + next->accel_mps2 * scale;
+            mid->gyro_rps = prev->gyro_rps * (1 - scale) + next->gyro_rps * scale;
 
             auto new_item = imu_pool_.Get();
             new_item->time_stamp_s = mid->time_stamp_s;
-            new_item->accel = mid->accel;
-            new_item->gyro = mid->gyro;
+            new_item->accel_mps2 = mid->accel_mps2;
+            new_item->gyro_rps = mid->gyro_rps;
 
             measure.imu_measures.emplace_back(std::move(mid));
             imu_buffer_.MovePushFront(new_item);
@@ -198,7 +198,7 @@ bool MixedDataLoader::PopLidarMeasurement(ObjectPtr<LidarMeasurement> &lidar_mea
 void MixedDataLoader::ReportPackedMeasurements(const VisualInertialMeasurePackage &measure) {
     ReportInfo("Packed visual-inertial measurements:");
     for (const auto &imu_measure: measure.imu_measures) {
-        ReportInfo(" - imu " << LogTime(imu_measure->time_stamp_s) << ", accel " << LogVec(imu_measure->accel) << ", gyro " << LogVec(imu_measure->gyro)
+        ReportInfo(" - imu " << LogTime(imu_measure->time_stamp_s) << ", accel " << LogVec(imu_measure->accel_mps2) << ", gyro " << LogVec(imu_measure->gyro_rps)
                              << ".");
     }
     for (const auto &camera_measure: measure.camera_measures) {
