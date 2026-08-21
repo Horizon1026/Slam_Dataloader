@@ -3,8 +3,8 @@ Some simple dataloader for slam.
 
 # Components
 - [x] General data loader.
-    - [x] Euroc format data loader.
-    - [x] Custom format data loader.
+    - [ ] Euroc format data loader.
+    - [ ] Custom format data loader.
 - [x] Mixed data loader.
     - [x] Multi-sensor synchronized data loader.
 
@@ -12,10 +12,11 @@ Some simple dataloader for slam.
 
 ### Project repositories
 - Slam_Utility
+- Sensor_Model
+- Binary_Data_Log
 
 ### Third-party repositories
 - Eigen3 (>= 3.3.7)（`sudo apt install libeigen3-dev`）
-- dw (`sudo apt install libdw-dev`)
 
 # Compile and Run
 - 第三方仓库的话需要自行 apt-get install 安装
