@@ -7,8 +7,9 @@
 #include "datatype_image.h"
 #include "imu_measurement.h"
 #include "lidar_measurement.h"
-#include "mutex"
 #include "object_pool.h"
+
+#include "mutex"
 
 namespace dataloader {
 

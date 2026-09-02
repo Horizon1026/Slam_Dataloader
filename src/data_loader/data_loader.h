@@ -1,17 +1,15 @@
 #ifndef _VIO_STEREO_VINS_DATA_LOADER_H_
 #define _VIO_STEREO_VINS_DATA_LOADER_H_
 
+#include "data_loader_log.h"
+
 #include "basic_type.h"
 #include "datatype_image.h"
 #include "datatype_image_pyramid.h"
-
 #include "object_pool.h"
-
 #include "camera_measurement.h"
 #include "imu_measurement.h"
-
 #include "binary_data_log.h"
-#include "data_loader_log.h"
 
 #include "deque"
 #include "mutex"

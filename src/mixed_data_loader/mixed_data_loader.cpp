@@ -1,4 +1,5 @@
 #include "mixed_data_loader.h"
+
 #include "slam_log_reporter.h"
 #include "slam_operations.h"
 
