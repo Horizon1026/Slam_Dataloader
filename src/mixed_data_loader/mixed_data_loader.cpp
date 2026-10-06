@@ -124,6 +124,7 @@ bool MixedDataLoader::PopVisualInertialMeasurePackage(VisualInertialMeasurePacka
     // Reset measure.
     measure.imu_measures.clear();
     measure.camera_measures.clear();
+    measure.camera_measures.resize(options_.kMaxNumberOfMultiViewCameras);
 
     // Check timestamp of multi-view images and imu data.
     double min_image_timestamp_s = multi_view_image_buffer_.front().Front()->time_stamp_s;
@@ -137,10 +138,11 @@ bool MixedDataLoader::PopVisualInertialMeasurePackage(VisualInertialMeasurePacka
 
     // Try to pack multi-view images.
     double max_image_timestamp_s = min_image_timestamp_s;
-    for (auto &buffer: multi_view_image_buffer_) {
+    for (uint32_t camera_id = 0; camera_id < multi_view_image_buffer_.size(); ++camera_id) {
+        auto &buffer = multi_view_image_buffer_[camera_id];
         CONTINUE_IF(buffer.Front()->time_stamp_s > max_tolerance_image_timestamp_s);
         max_image_timestamp_s = std::max(max_image_timestamp_s, buffer.Front()->time_stamp_s);
-        measure.camera_measures.emplace_back(std::move(buffer.Front()));
+        measure.camera_measures[camera_id] = std::move(buffer.Front());
         buffer.PopFront();
     }
 
@@ -199,28 +201,33 @@ bool MixedDataLoader::PopLidarMeasurement(ObjectPtr<LidarMeasurement> &lidar_mea
 void MixedDataLoader::ReportPackedMeasurements(const VisualInertialMeasurePackage &measure) {
     ReportInfo("Packed visual-inertial measurements:");
     for (const auto &imu_measure: measure.imu_measures) {
-        ReportInfo(" - imu " << LogTime(imu_measure->time_stamp_s) << ", accel " << LogVec(imu_measure->accel_mps2) << ", gyro " << LogVec(imu_measure->gyro_rps)
-                             << ".");
+        ReportInfo(" - imu " << LogTime(imu_measure->time_stamp_s) << ", accel " << LogVec(imu_measure->accel_mps2) << ", gyro "
+                             << LogVec(imu_measure->gyro_rps) << ".");
     }
-    for (const auto &camera_measure: measure.camera_measures) {
-        ReportInfo(" - image " << LogTime(camera_measure->time_stamp_s) << ", image size [" << camera_measure->image.rows() << " x "
-                               << camera_measure->image.cols() << "].");
+    for (uint32_t camera_id = 0; camera_id < measure.camera_measures.size(); ++camera_id) {
+        const auto &camera_measure = measure.camera_measures[camera_id];
+        if (camera_measure == nullptr) {
+            ReportInfo(" - camera " << camera_id << ": missing image.");
+            continue;
+        }
+        ReportInfo(" - camera " << camera_id << ": image " << LogTime(camera_measure->time_stamp_s) << ", image size [" << camera_measure->image.rows() << " x "
+                                << camera_measure->image.cols() << "].");
     }
 }
 
 bool MixedDataLoader::ValidateVisualInertialMeasurePackage(const VisualInertialMeasurePackage &measure) {
-    // Check integrity of the packaged measurements.
-    if (measure.camera_measures.size() != options_.kMaxNumberOfMultiViewCameras) {
-        ReportError("Failed to load multi-view image from packed measurement.");
+    // Only the left camera is required; other camera measurements may be missing.
+    if (measure.camera_measures.empty() || measure.camera_measures[0] == nullptr) {
+        ReportError("Missing left camera measurement in packed measurement.");
         return false;
     }
-    for (const auto &camera_measure: measure.camera_measures) {
-        if (camera_measure->image.data() == nullptr || camera_measure->image.rows() == 0 || camera_measure->image.cols() == 0) {
-            ReportError("Failed to load image data from packed measurement.");
-            return false;
-        }
+    const auto &image = measure.camera_measures[0]->image;
+    if (image.data() == nullptr || image.rows() <= 0 || image.cols() <= 0) {
+        ReportError("Invalid left camera image in packed measurement.");
+        return false;
     }
 
     return true;
 }
+
 }  // namespace dataloader
